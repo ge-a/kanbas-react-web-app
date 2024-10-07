@@ -30,7 +30,7 @@ export default function AssignmentEditor() {
 
                 <div className="mb-3 row">
                     <div className="col-md-6">
-                        <label htmlFor="wd-points" className="form-label">Points</label>
+                        <label htmlFor="wd-points" className="form-label fw-bold text-start">Points</label>
                         <input
                             id="wd-points"
                             value={100}
@@ -38,7 +38,7 @@ export default function AssignmentEditor() {
                         />
                     </div>
                     <div className="col-md-6">
-                        <label htmlFor="wd-group" className="form-label">Assignment Group</label>
+                        <label htmlFor="wd-group" className="form-label fw-bold text-start">Assignment Group</label>
                         <select id="wd-group" className="form-select">
                             <option selected value="ASSIGNMENTS">ASSIGNMENTS</option>
                             <option value="QUIZZES">QUIZZES</option>
@@ -49,11 +49,40 @@ export default function AssignmentEditor() {
                 </div>
 
                 <fieldset className="border rounded p-3 mb-3">
+                    <legend className="col-form-label fw-bold">Assign</legend>
+
+                    <div className="mb-3">
+                        <label htmlFor="wd-assign-to" className="form-label fw-bold text-start">Assign To</label>
+                        <input
+                            id="wd-assign-to"
+                            value="Everyone"
+                            className="form-control"
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="wd-due-date" className="form-label fw-bold text-start">Due</label>
+                        <input type="date" id="wd-due-date" value="2024-05-13" className="form-control" />
+                    </div>
+
+                    <div className="mb-3 row">
+                        <div className="col-md-6">
+                            <label htmlFor="wd-available-from" className="form-label fw-bold text-start">Available from</label>
+                            <input type="date" id="wd-available-from" value="2024-05-06" className="form-control" />
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="wd-available-to" className="form-label fw-bold text-start">Until</label>
+                            <input type="date" id="wd-available-to" value="2024-05-20" className="form-control" />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset className="border rounded p-3 mb-3">
                     <legend className="col-form-label fw-bold">Submission Type</legend>
 
                     <div className="mb-3 row">
                         <div className="col-md-6">
-                            <label htmlFor="wd-submission-type" className="form-label">Submission Type</label>
+                            <label htmlFor="wd-submission-type" className="form-label fw-bold text-start">Submission Type</label>
                             <select id="wd-submission-type" className="form-select">
                                 <option selected value="ONLINE">ONLINE</option>
                                 <option value="IN PERSON">IN PERSON</option>
@@ -62,7 +91,7 @@ export default function AssignmentEditor() {
                     </div>
 
                     <fieldset className="mb-3">
-                        <legend className="col-form-label">Online Entry Options</legend>
+                        <legend className="col-form-label fw-bold">Online Entry Options</legend>
                         <div className="form-check">
                             <input type="checkbox" name="check-entry-options" id="wd-text-entry" className="form-check-input" />
                             <label htmlFor="wd-text-entry" className="form-check-label">Text Entry</label>
@@ -84,35 +113,6 @@ export default function AssignmentEditor() {
                             <label htmlFor="wd-file-upload" className="form-check-label">File Uploads</label>
                         </div>
                     </fieldset>
-                </fieldset>
-
-                <fieldset className="border rounded p-3 mb-3">
-                    <legend className="col-form-label fw-bold">Assign</legend>
-
-                    <div className="mb-3">
-                        <label htmlFor="wd-assign-to" className="form-label">Assign To</label>
-                        <input
-                            id="wd-assign-to"
-                            value="Everyone"
-                            className="form-control"
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="wd-due-date" className="form-label">Due</label>
-                        <input type="date" id="wd-due-date" value="2024-05-13" className="form-control" />
-                    </div>
-
-                    <div className="mb-3 row">
-                        <div className="col-md-6">
-                            <label htmlFor="wd-available-from" className="form-label">Available from</label>
-                            <input type="date" id="wd-available-from" value="2024-05-06" className="form-control" />
-                        </div>
-                        <div className="col-md-6">
-                            <label htmlFor="wd-available-to" className="form-label">Until</label>
-                            <input type="date" id="wd-available-to" value="2024-05-20" className="form-control" />
-                        </div>
-                    </div>
                 </fieldset>
 
                 <hr />
