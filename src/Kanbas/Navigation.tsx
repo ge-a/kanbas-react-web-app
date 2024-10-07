@@ -42,7 +42,7 @@ export default function KanbasNavigation() {
       {/* Courses Link */}
       <Link to="/Kanbas/Courses" id="wd-course-link"
         className={`list-group-item text-center border-0 
-                    ${location.pathname === "/Kanbas/Courses" 
+                    ${location.pathname === "/Kanbas/Dashboard" 
                       ? "bg-white text-danger" 
                       : "bg-black text-white"}`}>
         <LiaBookSolid className="fs-1 text-danger" />
