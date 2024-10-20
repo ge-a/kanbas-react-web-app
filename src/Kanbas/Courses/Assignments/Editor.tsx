@@ -1,6 +1,18 @@
 import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import Database from '../../Database';
 
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams();
+    
+    const assignment = Database.assignments.find(
+        (assignment) => assignment._id === aid
+    );
+
+    if (!assignment) {
+        return <div>Assignment not found.</div>;
+    }
+
     return (
         <div id="wd-assignments-editor" className="container mt-4">
             <h2 className="mb-4">Assignment Editor</h2>
@@ -9,7 +21,7 @@ export default function AssignmentEditor() {
                     <label htmlFor="wd-name" className="form-label">Assignment Name</label>
                     <input
                         id="wd-name"
-                        value="A1 - ENV + HTML"
+                        value={assignment.title}
                         className="form-control"
                     />
                 </div>
@@ -20,12 +32,8 @@ export default function AssignmentEditor() {
                         id="wd-description"
                         className="form-control"
                         rows={4}
-                    >
-                        The assignment is available online Submit a link to the landing page of your Web application running on 
-                        Netlify. The landing page should include the following: Your full name and section, Links to each of the 
-                        lab assignments, Link to the Kanbas application, Links to all relevant source code repositories, The Kanbas
-                        application should include a link to navigate back to the landing page.
-                    </textarea>
+                        defaultValue={assignment.description}
+                    />
                 </div>
 
                 <div className="mb-3 row">
@@ -33,14 +41,14 @@ export default function AssignmentEditor() {
                         <label htmlFor="wd-points" className="form-label fw-bold text-start">Points</label>
                         <input
                             id="wd-points"
-                            value={100}
+                            value={assignment.points}
                             className="form-control"
                         />
                     </div>
                     <div className="col-md-6">
                         <label htmlFor="wd-group" className="form-label fw-bold text-start">Assignment Group</label>
-                        <select id="wd-group" className="form-select">
-                            <option selected value="ASSIGNMENTS">ASSIGNMENTS</option>
+                        <select id="wd-group" className="form-select" defaultValue="ASSIGNMENTS">
+                            <option value="ASSIGNMENTS">ASSIGNMENTS</option>
                             <option value="QUIZZES">QUIZZES</option>
                             <option value="EXAMS">EXAMS</option>
                             <option value="PROJECT">PROJECT</option>
@@ -62,17 +70,32 @@ export default function AssignmentEditor() {
 
                     <div className="mb-3">
                         <label htmlFor="wd-due-date" className="form-label fw-bold text-start">Due</label>
-                        <input type="date" id="wd-due-date" value="2024-05-13" className="form-control" />
+                        <input
+                            type="date"
+                            id="wd-due-date"
+                            defaultValue={assignment.dueDate}
+                            className="form-control"
+                        />
                     </div>
 
                     <div className="mb-3 row">
                         <div className="col-md-6">
                             <label htmlFor="wd-available-from" className="form-label fw-bold text-start">Available from</label>
-                            <input type="date" id="wd-available-from" value="2024-05-06" className="form-control" />
+                            <input
+                                type="date"
+                                id="wd-available-from"
+                                defaultValue={assignment.availableFrom}
+                                className="form-control"
+                            />
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="wd-available-to" className="form-label fw-bold text-start">Until</label>
-                            <input type="date" id="wd-available-to" value="2024-05-20" className="form-control" />
+                            <input
+                                type="date"
+                                id="wd-available-to"
+                                defaultValue={assignment.availableTo}
+                                className="form-control"
+                            />
                         </div>
                     </div>
                 </fieldset>
@@ -83,8 +106,8 @@ export default function AssignmentEditor() {
                     <div className="mb-3 row">
                         <div className="col-md-6">
                             <label htmlFor="wd-submission-type" className="form-label fw-bold text-start">Submission Type</label>
-                            <select id="wd-submission-type" className="form-select">
-                                <option selected value="ONLINE">ONLINE</option>
+                            <select id="wd-submission-type" className="form-select" defaultValue="ONLINE">
+                                <option value="ONLINE">ONLINE</option>
                                 <option value="IN PERSON">IN PERSON</option>
                             </select>
                         </div>
@@ -116,10 +139,10 @@ export default function AssignmentEditor() {
                 </fieldset>
 
                 <hr />
-                
+
                 <div className="float-end">
-                    <button type="button" className="btn btn-secondary me-2">Cancel</button>
-                    <button type="button" className="btn btn-danger">Save</button>
+                    <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">Cancel</Link>
+                    <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-danger me-2">Save</Link>
                 </div>
             </form>
         </div>

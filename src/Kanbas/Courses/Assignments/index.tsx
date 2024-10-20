@@ -1,9 +1,15 @@
-import { FaSearch, FaPencilRuler, FaPlus } from 'react-icons/fa'; // Import the FaPlus icon
+import { FaSearch, FaPencilRuler, FaPlus } from 'react-icons/fa';
 import { BsGripVertical } from 'react-icons/bs';
-import { IoEllipsisVertical } from 'react-icons/io5'; // Ensure to install react-icons if not already done
+import { IoEllipsisVertical } from 'react-icons/io5';
+import { useParams } from 'react-router-dom';
 import AssignmentControlButtons from './AssignmentControlButtons';
+import Database from '../../Database';
 
 export default function Assignments() {
+  const { cid } = useParams(); // Retrieve course ID from URL
+  const assignments = Database.assignments; // Get assignments from database
+  const filteredAssignments = assignments.filter(assignment => assignment.course === cid); // Filter assignments based on courseId
+
   return (
     <div id="wd-assignments" className="mb-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -13,7 +19,7 @@ export default function Assignments() {
           </span>
           <input
             id="wd-search-assignment"
-            className="form-control border-start-0" // Remove left border to blend with icon
+            className="form-control border-start-0"
             placeholder="Search for Assignments"
           />
         </div>
@@ -21,13 +27,13 @@ export default function Assignments() {
           <button
             id="wd-add-assignment-group"
             className="btn btn-light me-2"
-            style={{ backgroundColor: '#f8f9fa' }} // Light gray background
+            style={{ backgroundColor: '#f8f9fa' }}
           >
             + Group
           </button>
           <button
             id="wd-add-assignment"
-            className="btn btn-danger" // Bootstrap class for red button
+            className="btn btn-danger"
           >
             + Assignment
           </button>
@@ -41,31 +47,25 @@ export default function Assignments() {
         <div className="d-flex align-items-center">
           <span
             className="rounded-pill border border-light text-center d-flex align-items-center justify-content-center"
-            style={{ padding: '5px 10px', backgroundColor: '#f8f9fa', color: '#000' }} // Oval styling
+            style={{ padding: '5px 10px', backgroundColor: '#f8f9fa', color: '#000' }}
           >
             40% of Total
           </span>
           <div className="ms-2 d-flex align-items-center">
-            <FaPlus className="fs-5" /> {/* Using the FaPlus icon */}
+            <FaPlus className="fs-5" />
             <IoEllipsisVertical className="fs-4 ms-2" />
           </div>
         </div>
       </div>
       <ul id="wd-assignment-list" className="list-group rounded-0">
-        {[{
-          id: '123', name: 'A1', description: 'Not available until May 6 at 12:00am |', due: 'Due May 13 at 11:59pm | 100pts',
-        }, {
-          id: '1234', name: 'A2', description: 'Not available until May 13 at 12:00am |', due: 'Due May 20 at 11:59pm | 100pts',
-        }, {
-          id: '12345', name: 'A3', description: 'Not available until May 20 at 12:00am |', due: 'Due May 27 at 11:59pm | 100pts',
-        }].map((assignment) => (
-          <li key={assignment.id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center">
+        {filteredAssignments.map((assignment) => (
+          <li key={assignment._id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <BsGripVertical className="me-2 fs-3" />
               <FaPencilRuler style={{ color: 'green' }} className="me-2 fs-3" />
               <div className="ms-2">
-                <a className="fw-bold" href={`#/Kanbas/Courses/1234/Assignments/${assignment.id}`}>
-                  {assignment.name}
+                <a className="fw-bold" href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}>
+                  {assignment.title}
                 </a>
                 <div>
                   <a href="#/modules" style={{ color: 'red' }}>
@@ -73,7 +73,7 @@ export default function Assignments() {
                   </a>
                   {' '}| {assignment.description}
                 </div>
-                <div className="text-muted">{assignment.due}</div>
+                <div className="text-muted">{assignment.dueDate}</div>
               </div>
             </div>
             <div>
