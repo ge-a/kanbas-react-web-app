@@ -2,17 +2,31 @@ import CoursesNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
-import PeopleTable from "./People/Table"
+import PeopleTable from "./People/Table";
 import AssignmentEditor from "./Assignments/Editor";
 import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
 import { FaAlignJustify } from 'react-icons/fa';
-import db from "../Database";
+import { useDispatch } from "react-redux";
+import { addAssignment, updateAssignment } from "./Assignments/reducer";
+import { useState } from "react";
+import path from "path";
 
-
-export default function Courses() {
-  const { cid } = useParams();
-  const course = db.courses.find((course) => course._id === cid);
+export default function Courses({ courses }: { courses: any[]; }) {
+  const { cid, aid } = useParams();
+  const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const lastSegment = pathSegments[pathSegments.length - 1];
+  const dispatch = useDispatch();
+
+  const [assignmentDetails, setAssignmentDetails] = useState({
+    title: "",
+    description: "",
+    dueDate: "",
+    points: 0,
+    availableFrom: "",
+    availableTo: "",
+  });
 
   return (
     <div id="wd-courses">
@@ -31,7 +45,60 @@ export default function Courses() {
             <Route path="Home" element={<Home />} />
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments" element={<Assignments />} />
-            <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+            <Route path="Assignments/new" 
+              element={<AssignmentEditor
+                assignmentDetails={assignmentDetails}
+                setAssignmentDetails={setAssignmentDetails}
+                changeAssignment={() => {
+                  dispatch(addAssignment({
+                    title: assignmentDetails.title,
+                    course: cid,
+                    description: assignmentDetails.description,
+                    dueDate: assignmentDetails.dueDate,
+                    points: assignmentDetails.points,
+                    availableFrom: assignmentDetails.availableFrom,
+                    availableTo: assignmentDetails.availableTo,
+                  }));
+                  setAssignmentDetails({
+                    title: "",
+                    description: "",
+                    dueDate: "",
+                    points: 0,
+                    availableFrom: "",
+                    availableTo: "",
+                  });
+                }} />} />
+            <Route path="Assignments/:aid" 
+              element={
+                aid === "new" ? (
+                  <Navigate to={`Assignments/new`} />
+                ) : (
+                  <AssignmentEditor
+                    assignmentDetails={assignmentDetails}
+                    setAssignmentDetails={setAssignmentDetails}
+                    changeAssignment={() => {
+                      dispatch(updateAssignment({
+                        _id: lastSegment,
+                        title: assignmentDetails.title,
+                        course: cid,
+                        description: assignmentDetails.description,
+                        dueDate: assignmentDetails.dueDate,
+                        points: assignmentDetails.points,
+                        availableFrom: assignmentDetails.availableFrom,
+                        availableTo: assignmentDetails.availableTo,
+                      }));
+                      setAssignmentDetails({
+                        title: "",
+                        description: "",
+                        dueDate: "",
+                        points: 0,
+                        availableFrom: "",
+                        availableTo: "",
+                      });
+                    }} 
+                  />
+                )
+              } />
             <Route path="/People" element={<PeopleTable />} />
           </Routes>
         </div>

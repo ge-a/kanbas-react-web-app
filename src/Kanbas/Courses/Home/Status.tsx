@@ -2,9 +2,11 @@ import { MdDoNotDisturbAlt } from "react-icons/md";
 import {FaCheckCircle, FaHome, FaBullseye, FaBullhorn, FaBell, FaChartLine } from 'react-icons/fa';
 import { BiImport } from "react-icons/bi";
 import { LiaFileImportSolid } from "react-icons/lia";
-{/* Find more icons */ }
+import ProtectedButton from "../../Account/ProtectedButton";
+
 export default function CourseStatus() {
   return (
+    <ProtectedButton>
     <div id="wd-course-status" style={{ width: "300px" }}>
       <h2>Course Status</h2>
       <div className="d-flex">
@@ -32,5 +34,6 @@ export default function CourseStatus() {
         <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
         <FaBell className="me-2 fs-5" /> View Course Notifications </button>
     </div>
+    </ProtectedButton>
   );
 }

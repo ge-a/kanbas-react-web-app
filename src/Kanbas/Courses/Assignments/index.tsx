@@ -1,14 +1,27 @@
 import { FaSearch, FaPencilRuler, FaPlus } from 'react-icons/fa';
 import { BsGripVertical } from 'react-icons/bs';
 import { IoEllipsisVertical } from 'react-icons/io5';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import AssignmentControlButtons from './AssignmentControlButtons';
 import Database from '../../Database';
+import { useSelector } from 'react-redux';
+import { deleteAssignment } from "./reducer";
+import { useDispatch } from 'react-redux';
+import { useState } from 'react';
+import ProtectedButton from '../../Account/ProtectedButton';
 
 export default function Assignments() {
-  const { cid } = useParams(); // Retrieve course ID from URL
-  const assignments = Database.assignments; // Get assignments from database
-  const filteredAssignments = assignments.filter(assignment => assignment.course === cid); // Filter assignments based on courseId
+  const { cid } = useParams();
+  const { assignments } = useSelector((state: any) => state.assignmentReducer)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [a_Id, setA_Id] = useState("");
+
+  const userRole = useSelector((state : any) => state.accountReducer.currentUser.role);
+
+  const handleAddAssignment = () => {
+    navigate(`new`);
+  };
 
   return (
     <div id="wd-assignments" className="mb-4">
@@ -31,12 +44,15 @@ export default function Assignments() {
           >
             + Group
           </button>
-          <button
-            id="wd-add-assignment"
-            className="btn btn-danger"
-          >
-            + Assignment
-          </button>
+          <ProtectedButton>
+            <button
+              id="wd-add-assignment"
+              className="btn btn-danger"
+              onClick={handleAddAssignment}
+            >
+              + Assignment
+            </button>
+          </ProtectedButton>
         </div>
       </div>
       <div id="wd-title" className="p-3 ps-2 bg-secondary d-flex justify-content-between align-items-center">
@@ -58,15 +74,19 @@ export default function Assignments() {
         </div>
       </div>
       <ul id="wd-assignment-list" className="list-group rounded-0">
-        {filteredAssignments.map((assignment) => (
+        {assignments.filter((assignment: any) => assignment.course === cid).map((assignment: any) => (
           <li key={assignment._id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <BsGripVertical className="me-2 fs-3" />
               <FaPencilRuler style={{ color: 'green' }} className="me-2 fs-3" />
               <div className="ms-2">
-                <a className="fw-bold" href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}>
-                  {assignment.title}
-                </a>
+                {userRole === "FACULTY" ? (
+                  <a className="fw-bold" href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}>
+                    {assignment.title}
+                  </a>
+                ) : (
+                  <span className="fw-bold">{assignment.title}</span>
+                )}
                 <div>
                   <a href="#/modules" style={{ color: 'red' }}>
                     Multiple Modules
@@ -77,7 +97,13 @@ export default function Assignments() {
               </div>
             </div>
             <div>
-              <AssignmentControlButtons />
+              <AssignmentControlButtons assignmentId={assignment._id}
+                setAssignmentId={setA_Id}
+                deleteAssignment={() => {
+                  console.log("AT ASSIGNCONTROLBUTTONS assignment ID:", a_Id);
+                  dispatch(deleteAssignment(a_Id));
+                  setA_Id("")
+                }} />
             </div>
           </li>
         ))}

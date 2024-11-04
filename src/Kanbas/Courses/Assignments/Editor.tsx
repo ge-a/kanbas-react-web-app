@@ -1,28 +1,51 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Database from '../../Database';
 
-export default function AssignmentEditor() {
+export default function AssignmentEditor({
+    assignmentDetails,
+    setAssignmentDetails,
+    changeAssignment,
+}: {
+    assignmentDetails: { title: string, description: string, dueDate: string, points: number, availableFrom: string, availableTo: string };
+    setAssignmentDetails: (details: { title: string, description: string, dueDate: string, points: number, availableFrom: string, availableTo: string }) => void;
+    changeAssignment: () => void;
+}) {
     const { cid, aid } = useParams();
-    
-    const assignment = Database.assignments.find(
+    const navigate = useNavigate();
+
+    // Check if we're creating a new assignment
+    const isNewAssignment = aid === "new";
+    const assignment = isNewAssignment ? null : Database.assignments.find(
         (assignment) => assignment._id === aid
     );
 
-    if (!assignment) {
-        return <div>Assignment not found.</div>;
-    }
+    // If editing an existing assignment, load its details into the state
+    React.useEffect(() => {
+        if (!isNewAssignment && assignment) {
+            setAssignmentDetails({
+                title: assignment.title,
+                description: assignment.description,
+                dueDate: assignment.dueDate,
+                points: assignment.points,
+                availableFrom: assignment.availableFrom,
+                availableTo: assignment.availableTo
+            });
+        }
+    }, [assignment, isNewAssignment, setAssignmentDetails]);
 
     return (
         <div id="wd-assignments-editor" className="container mt-4">
-            <h2 className="mb-4">Assignment Editor</h2>
+            <h2 className="mb-4">{isNewAssignment ? "New Assignment" : "Assignment Editor"}</h2>
             <form>
                 <div className="mb-3">
                     <label htmlFor="wd-name" className="form-label">Assignment Name</label>
                     <input
                         id="wd-name"
-                        value={assignment.title}
+                        value={assignmentDetails.title}
                         className="form-control"
+                        placeholder='Assignment Title'
+                        onChange={(e) => setAssignmentDetails({ ...assignmentDetails, title: e.target.value })}
                     />
                 </div>
 
@@ -32,7 +55,9 @@ export default function AssignmentEditor() {
                         id="wd-description"
                         className="form-control"
                         rows={4}
-                        defaultValue={assignment.description}
+                        value={assignmentDetails.description}
+                        placeholder='Assignment Description'
+                        onChange={(e) => setAssignmentDetails({ ...assignmentDetails, description: e.target.value })}
                     />
                 </div>
 
@@ -41,13 +66,18 @@ export default function AssignmentEditor() {
                         <label htmlFor="wd-points" className="form-label fw-bold text-start">Points</label>
                         <input
                             id="wd-points"
-                            value={assignment.points}
+                            value={assignmentDetails.points}
                             className="form-control"
+                            onChange={(e) => setAssignmentDetails({ ...assignmentDetails, points: Number(e.target.value) })}
                         />
                     </div>
                     <div className="col-md-6">
                         <label htmlFor="wd-group" className="form-label fw-bold text-start">Assignment Group</label>
-                        <select id="wd-group" className="form-select" defaultValue="ASSIGNMENTS">
+                        <select
+                            id="wd-group"
+                            className="form-select"
+                            defaultValue="ASSIGNMENTS"
+                        >
                             <option value="ASSIGNMENTS">ASSIGNMENTS</option>
                             <option value="QUIZZES">QUIZZES</option>
                             <option value="EXAMS">EXAMS</option>
@@ -73,8 +103,9 @@ export default function AssignmentEditor() {
                         <input
                             type="date"
                             id="wd-due-date"
-                            defaultValue={assignment.dueDate}
+                            value={assignmentDetails.dueDate}
                             className="form-control"
+                            onChange={(e) => setAssignmentDetails({ ...assignmentDetails, dueDate: e.target.value })}
                         />
                     </div>
 
@@ -84,8 +115,9 @@ export default function AssignmentEditor() {
                             <input
                                 type="date"
                                 id="wd-available-from"
-                                defaultValue={assignment.availableFrom}
+                                value={assignmentDetails.availableFrom}
                                 className="form-control"
+                                onChange={(e) => setAssignmentDetails({ ...assignmentDetails, availableFrom: e.target.value })}
                             />
                         </div>
                         <div className="col-md-6">
@@ -93,8 +125,9 @@ export default function AssignmentEditor() {
                             <input
                                 type="date"
                                 id="wd-available-to"
-                                defaultValue={assignment.availableTo}
+                                value={assignmentDetails.availableTo}
                                 className="form-control"
+                                onChange={(e) => setAssignmentDetails({ ...assignmentDetails, availableTo: e.target.value })}
                             />
                         </div>
                     </div>
@@ -138,11 +171,20 @@ export default function AssignmentEditor() {
                     </fieldset>
                 </fieldset>
 
+
                 <hr />
 
                 <div className="float-end">
                     <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">Cancel</Link>
-                    <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-danger me-2">Save</Link>
+                    <button
+                        className="btn btn-danger me-2"
+                        onClick={() => {
+                            changeAssignment();
+                            navigate(`/Kanbas/Courses/${cid}/Assignments`);
+                        }}
+                    >
+                        Save
+                    </button>
                 </div>
             </form>
         </div>
