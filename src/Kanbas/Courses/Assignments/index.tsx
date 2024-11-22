@@ -3,12 +3,13 @@ import { BsGripVertical } from 'react-icons/bs';
 import { IoEllipsisVertical } from 'react-icons/io5';
 import { useParams, useNavigate } from 'react-router-dom';
 import AssignmentControlButtons from './AssignmentControlButtons';
-import Database from '../../Database';
 import { useSelector } from 'react-redux';
-import { deleteAssignment } from "./reducer";
+import { deleteAssignment, setAssignments } from "./reducer";
 import { useDispatch } from 'react-redux';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProtectedButton from '../../Account/ProtectedButton';
+import * as coursesClient from "../client";
+import * as assignmentsClient from "./client";
 
 export default function Assignments() {
   const { cid } = useParams();
@@ -17,7 +18,20 @@ export default function Assignments() {
   const dispatch = useDispatch();
   const [a_Id, setA_Id] = useState("");
 
-  const userRole = useSelector((state : any) => state.accountReducer.currentUser.role);
+  const userRole = useSelector((state: any) => state.accountReducer.currentUser.role);
+
+  const fetchAssignments = async () => {
+    const assignments = await coursesClient.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const removeAssignment = async () => {
+    await assignmentsClient.deleteAssignment(a_Id);
+    dispatch(deleteAssignment(a_Id));
+  }
 
   const handleAddAssignment = () => {
     navigate(`new`);
@@ -74,7 +88,7 @@ export default function Assignments() {
         </div>
       </div>
       <ul id="wd-assignment-list" className="list-group rounded-0">
-        {assignments.filter((assignment: any) => assignment.course === cid).map((assignment: any) => (
+        {assignments.map((assignment: any) => (
           <li key={assignment._id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center">
               <BsGripVertical className="me-2 fs-3" />
@@ -99,11 +113,9 @@ export default function Assignments() {
             <div>
               <AssignmentControlButtons assignmentId={assignment._id}
                 setAssignmentId={setA_Id}
-                deleteAssignment={() => {
-                  console.log("AT ASSIGNCONTROLBUTTONS assignment ID:", a_Id);
-                  dispatch(deleteAssignment(a_Id));
-                  setA_Id("")
-                }} />
+                deleteAssignment={
+                  removeAssignment
+                } />
             </div>
           </li>
         ))}

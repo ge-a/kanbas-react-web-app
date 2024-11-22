@@ -1,39 +1,64 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import Database from '../../Database';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { addAssignment, updateAssignment } from "./reducer";
+import * as coursesClient from "../client"
+import * as assignmentsClient from "./client"
 
-export default function AssignmentEditor({
-    assignmentDetails,
-    setAssignmentDetails,
-    changeAssignment,
-}: {
-    assignmentDetails: { title: string, description: string, dueDate: string, points: number, availableFrom: string, availableTo: string };
-    setAssignmentDetails: (details: { title: string, description: string, dueDate: string, points: number, availableFrom: string, availableTo: string }) => void;
-    changeAssignment: () => void;
-}) {
+export default function AssignmentEditor() {
+    const [_id, setId] = useState("");
+    const [title, setTitle] = useState("");
+    const [course, setCourse] = useState("");
+    const [description, setDescription] = useState("");
+    const [points, setAssignmentPoints] = useState(0);
+    const [dueDate, setDueDate] = useState("");
+    const [availableFrom, setAvailableFrom] = useState("");
+    const [availableTo, setAvailableTo] = useState("")
     const { cid, aid } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    // Check if we're creating a new assignment
     const isNewAssignment = aid === "new";
-    const assignment = isNewAssignment ? null : Database.assignments.find(
-        (assignment) => assignment._id === aid
-    );
+    const { assignments } = useSelector((state: any) => state.assignmentReducer);
 
-    // If editing an existing assignment, load its details into the state
-    React.useEffect(() => {
-        if (!isNewAssignment && assignment) {
-            setAssignmentDetails({
-                title: assignment.title,
-                description: assignment.description,
-                dueDate: assignment.dueDate,
-                points: assignment.points,
-                availableFrom: assignment.availableFrom,
-                availableTo: assignment.availableTo
-            });
+
+    const notNewAssignment = assignments.find((assignment: any) => assignment._id === aid);
+    if (notNewAssignment && _id === "") {
+        setId(notNewAssignment._id);
+        setTitle(notNewAssignment.title);
+        setCourse(notNewAssignment.course);
+        setDescription(notNewAssignment.description);
+        setAssignmentPoints(notNewAssignment.points);
+        setDueDate(notNewAssignment.dueDate);
+        setAvailableFrom(notNewAssignment.availableFrom);
+        setAvailableTo(notNewAssignment.availableTo)
+    }
+
+    async function handleSubmit() {
+        debugger;
+        const assignment = {
+            _id,
+            title,
+            course,
+            description,
+            points,
+            dueDate,
+            availableFrom,
+            availableTo
+        };
+
+        if (!isNewAssignment) {
+            await assignmentsClient.updateAssignment(assignment)
+            dispatch(updateAssignment(assignment));
+        } else {
+            assignment.course = cid!;
+            const newAssignment = await coursesClient.createAssignmentForCourse(cid!, assignment);
+            dispatch(addAssignment(newAssignment));
         }
-    }, [assignment, isNewAssignment, setAssignmentDetails]);
-
+        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    }
     return (
         <div id="wd-assignments-editor" className="container mt-4">
             <h2 className="mb-4">{isNewAssignment ? "New Assignment" : "Assignment Editor"}</h2>
@@ -42,10 +67,10 @@ export default function AssignmentEditor({
                     <label htmlFor="wd-name" className="form-label">Assignment Name</label>
                     <input
                         id="wd-name"
-                        value={assignmentDetails.title}
+                        value={title}
                         className="form-control"
                         placeholder='Assignment Title'
-                        onChange={(e) => setAssignmentDetails({ ...assignmentDetails, title: e.target.value })}
+                        onChange={(e) => setTitle(e.target.value)}
                     />
                 </div>
 
@@ -55,9 +80,9 @@ export default function AssignmentEditor({
                         id="wd-description"
                         className="form-control"
                         rows={4}
-                        value={assignmentDetails.description}
+                        value={description}
                         placeholder='Assignment Description'
-                        onChange={(e) => setAssignmentDetails({ ...assignmentDetails, description: e.target.value })}
+                        onChange={(e) => (setDescription(e.target.value))}
                     />
                 </div>
 
@@ -66,9 +91,9 @@ export default function AssignmentEditor({
                         <label htmlFor="wd-points" className="form-label fw-bold text-start">Points</label>
                         <input
                             id="wd-points"
-                            value={assignmentDetails.points}
+                            value={points}
                             className="form-control"
-                            onChange={(e) => setAssignmentDetails({ ...assignmentDetails, points: Number(e.target.value) })}
+                            onChange={(e) => setAssignmentPoints(Number(e.target.value))}
                         />
                     </div>
                     <div className="col-md-6">
@@ -103,9 +128,9 @@ export default function AssignmentEditor({
                         <input
                             type="date"
                             id="wd-due-date"
-                            value={assignmentDetails.dueDate}
+                            value={dueDate}
                             className="form-control"
-                            onChange={(e) => setAssignmentDetails({ ...assignmentDetails, dueDate: e.target.value })}
+                            onChange={(e) => setDueDate(e.target.value)}
                         />
                     </div>
 
@@ -115,9 +140,9 @@ export default function AssignmentEditor({
                             <input
                                 type="date"
                                 id="wd-available-from"
-                                value={assignmentDetails.availableFrom}
+                                value={availableFrom}
                                 className="form-control"
-                                onChange={(e) => setAssignmentDetails({ ...assignmentDetails, availableFrom: e.target.value })}
+                                onChange={(e) => setAvailableFrom(e.target.value)}
                             />
                         </div>
                         <div className="col-md-6">
@@ -125,9 +150,9 @@ export default function AssignmentEditor({
                             <input
                                 type="date"
                                 id="wd-available-to"
-                                value={assignmentDetails.availableTo}
+                                value={availableTo}
                                 className="form-control"
-                                onChange={(e) => setAssignmentDetails({ ...assignmentDetails, availableTo: e.target.value })}
+                                onChange={(e) => setAvailableTo(e.target.value)}
                             />
                         </div>
                     </div>
@@ -178,10 +203,7 @@ export default function AssignmentEditor({
                     <Link to={`/Kanbas/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">Cancel</Link>
                     <button
                         className="btn btn-danger me-2"
-                        onClick={() => {
-                            changeAssignment();
-                            navigate(`/Kanbas/Courses/${cid}/Assignments`);
-                        }}
+                        onClick={handleSubmit}
                     >
                         Save
                     </button>

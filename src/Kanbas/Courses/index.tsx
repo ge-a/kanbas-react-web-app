@@ -1,108 +1,34 @@
-import CoursesNavigation from "./Navigation";
-import Modules from "./Modules";
-import Home from "./Home";
+import { FaAlignJustify } from "react-icons/fa";
 import Assignments from "./Assignments";
-import PeopleTable from "./People/Table";
 import AssignmentEditor from "./Assignments/Editor";
-import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
-import { FaAlignJustify } from 'react-icons/fa';
-import { useDispatch } from "react-redux";
-import { addAssignment, updateAssignment } from "./Assignments/reducer";
-import { useState } from "react";
-import path from "path";
-
+import Home from "./Home";
+import Modules from "./Modules";
+import CoursesNavigation from "./Navigation";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router";
 export default function Courses({ courses }: { courses: any[]; }) {
-  const { cid, aid } = useParams();
-  const course = courses.find((course) => course._id === cid);
-  const { pathname } = useLocation();
-  const pathSegments = pathname.split('/').filter(Boolean);
-  const lastSegment = pathSegments[pathSegments.length - 1];
-  const dispatch = useDispatch();
-
-  const [assignmentDetails, setAssignmentDetails] = useState({
-    title: "",
-    description: "",
-    dueDate: "",
-    points: 0,
-    availableFrom: "",
-    availableTo: "",
-  });
-
-  return (
-    <div id="wd-courses">
-      <h2 className="text-danger">
-        <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course && course.name} &gt; {pathname.split("/")[4]}
-      </h2>
-      <hr />
-      <div className="d-flex">
-        <div className="d-none d-md-block">
-          <CoursesNavigation />
+    const { cid } = useParams();
+    const { pathname } = useLocation();
+    const course = courses.find((course) => course._id === cid);
+    return (
+        <div id="wd-courses">
+            <h2 className="text-danger">
+                <FaAlignJustify className="me-4 fs-4 mb-1" />
+                {course && course.name}  &gt; {pathname.split("/")[4]}
+            </h2>
+            <hr />
+            <div className="d-flex">
+                <div className="d-none d-md-block">
+                    <CoursesNavigation />
+                </div>
+                <div className="flex-fill">
+                    <Routes>
+                        <Route path="/" element={<Navigate to="Home" />} />
+                        <Route path="Home" element={<Home />} />
+                        <Route path="Modules" element={<Modules />} />
+                        <Route path="Assignments" element={<Assignments />} />
+                        <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+                    </Routes>
+                </div></div>
         </div>
-        <div className="flex-grow-1">
-          <Routes>
-            <Route path="/" element={<Navigate to="Home" />} />
-            <Route path="Home" element={<Home />} />
-            <Route path="Modules" element={<Modules />} />
-            <Route path="Assignments" element={<Assignments />} />
-            <Route path="Assignments/new" 
-              element={<AssignmentEditor
-                assignmentDetails={assignmentDetails}
-                setAssignmentDetails={setAssignmentDetails}
-                changeAssignment={() => {
-                  dispatch(addAssignment({
-                    title: assignmentDetails.title,
-                    course: cid,
-                    description: assignmentDetails.description,
-                    dueDate: assignmentDetails.dueDate,
-                    points: assignmentDetails.points,
-                    availableFrom: assignmentDetails.availableFrom,
-                    availableTo: assignmentDetails.availableTo,
-                  }));
-                  setAssignmentDetails({
-                    title: "",
-                    description: "",
-                    dueDate: "",
-                    points: 0,
-                    availableFrom: "",
-                    availableTo: "",
-                  });
-                }} />} />
-            <Route path="Assignments/:aid" 
-              element={
-                aid === "new" ? (
-                  <Navigate to={`Assignments/new`} />
-                ) : (
-                  <AssignmentEditor
-                    assignmentDetails={assignmentDetails}
-                    setAssignmentDetails={setAssignmentDetails}
-                    changeAssignment={() => {
-                      dispatch(updateAssignment({
-                        _id: lastSegment,
-                        title: assignmentDetails.title,
-                        course: cid,
-                        description: assignmentDetails.description,
-                        dueDate: assignmentDetails.dueDate,
-                        points: assignmentDetails.points,
-                        availableFrom: assignmentDetails.availableFrom,
-                        availableTo: assignmentDetails.availableTo,
-                      }));
-                      setAssignmentDetails({
-                        title: "",
-                        description: "",
-                        dueDate: "",
-                        points: 0,
-                        availableFrom: "",
-                        availableTo: "",
-                      });
-                    }} 
-                  />
-                )
-              } />
-            <Route path="/People" element={<PeopleTable />} />
-          </Routes>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
