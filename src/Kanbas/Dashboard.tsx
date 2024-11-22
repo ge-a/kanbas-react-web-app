@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import db from "./Database";
 import ProtectedButton from "./Account/ProtectedButton";
 import ProtectedStudents from "./Account/ProtectStudents";
-
-import { addEnrollment, removeEnrollment } from "./Account/reducer"; // Import actions
-
+import * as enrollmentsClient from "./Dashboard/client";
+import { addEnrollment, removeEnrollment, setEnrollments } from "./Account/reducer"; // Import actions
 
 type DashboardProps = {
   courses: any[];
   course: any;
+  allCourses: any[];
   setCourse: (course: any) => void;
   addNewCourse: () => void;
   deleteCourse: (courseId: any) => void;
@@ -18,41 +17,59 @@ type DashboardProps = {
 };
 
 export default function Dashboard({
-  courses,
+  courses: initialCourses,
   course,
+  allCourses: initialAllCourses,
   setCourse,
   addNewCourse,
   deleteCourse,
   updateCourse,
 }: DashboardProps) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const { enrollments } = useSelector((state: any) => state.accountReducer);;
+  const { enrollments } = useSelector((state: any) => state.accountReducer);
+  const [courses, setCourses] = useState(initialCourses); // State for enrolled courses
+  const [allCourses, setAllCourses] = useState(initialAllCourses); // State for all available courses
   const [showEnrollments, setShowEnrollments] = useState(false); // State to control enrollment display
   const [showAllCourses, setShowAllCourses] = useState(false); // State to toggle between all courses and enrolled courses
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  // Filter courses that the current user is enrolled in
-  const enrolledCourses = courses.filter(course =>
-    enrollments.some(
-      (enrollment: any) =>
-        enrollment.user === currentUser._id &&
-        enrollment.course === course._id
-    )
-  );
-
-  const handleEnroll = (courseId: string) => {
-    dispatch(addEnrollment({ user: currentUser._id, course: courseId }));
+  const fetchEnrollments = async () => {
+    const enrollments = await enrollmentsClient.getEnrollmentsForUser(currentUser?._id);
+    dispatch(setEnrollments(enrollments));
   };
 
-  const handleUnenroll = (courseId: string) => {
-    const enrollment = enrollments.find(
-      (enrollment: any) => enrollment.user === currentUser._id && enrollment.course === courseId
-    );
-    if (enrollment) {
-      dispatch(removeEnrollment(enrollment._id));
-    }
+  // Fetch enrollments on component mount
+  useEffect(() => {
+    fetchEnrollments();
+  }, []);
+
+  // Update courses and allCourses when enrollments change
+  useEffect(() => {
+    const enrolledCourseIds = enrollments.map((enrollment: any) => enrollment.course);
+    setCourses(initialAllCourses.filter((course) => enrolledCourseIds.includes(course._id)));
+    setAllCourses(initialAllCourses);
+  }, [enrollments, initialAllCourses]);
+
+  const handleEnroll = async (courseId: string) => {
+    const enrollment = {
+      user: currentUser?._id,
+      course: courseId,
+    };
+    const newEnrollment = await enrollmentsClient.enrollUserInCourse(enrollment);
+    dispatch(addEnrollment(newEnrollment));
   };
+
+  const handleUnenroll = async (courseId: string) => {
+    const enrollmentId = enrollments.find(
+      (enrollment: { user: string; course: string }) =>
+        enrollment.user === currentUser?._id && enrollment.course === courseId
+    )?._id;
+    if (!enrollmentId) return;
+    await enrollmentsClient.deleteEnrollment(enrollmentId);
+    dispatch(removeEnrollment(enrollmentId));
+  };
+
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1>
@@ -60,7 +77,9 @@ export default function Dashboard({
 
       {/* Container for buttons */}
       <div className="d-flex flex-column">
-        <ProtectedButton><h5>New Course</h5></ProtectedButton>
+        <ProtectedButton>
+          <h5>New Course</h5>
+        </ProtectedButton>
         <ProtectedButton>
           <input
             value={course.name}
@@ -105,9 +124,6 @@ export default function Dashboard({
         </ProtectedStudents>
       </div>
 
-
-
-
       {/* Enrollments Modal */}
       {showEnrollments && (
         <div className="wd-dashboard-courses">
@@ -115,7 +131,7 @@ export default function Dashboard({
             <h2>{showAllCourses ? "All Courses" : "Enrolled Courses"}</h2>
             {/* Show All Courses / Show Enrolled Only Button */}
             <button
-              className="btn btn-info" // Use the same class for consistency
+              className="btn btn-info"
               onClick={() => setShowAllCourses(!showAllCourses)}
             >
               {showAllCourses ? "Show Enrolled Only" : "Show All Courses"}
@@ -123,9 +139,10 @@ export default function Dashboard({
           </div>
           <hr />
           <div className="row row-cols-1 row-cols-md-5 g-4">
-            {(showAllCourses ? courses : enrolledCourses).map((course) => {
+            {(showAllCourses ? allCourses : courses).map((course) => {
               const isEnrolled = enrollments.find(
-                (enrollment: any) => enrollment.user === currentUser._id && enrollment.course === course._id
+                (enrollment: any) =>
+                  enrollment.user === currentUser?._id && enrollment.course === course._id
               );
 
               return (
