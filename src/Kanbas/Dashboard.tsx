@@ -173,11 +173,11 @@ export default function Dashboard({
       )}
 
       {/* Display the number of enrolled courses */}
-      <h2 id="wd-dashboard-published">Published Courses ({enrolledCourses.length})</h2>
+      <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
       <hr />
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {enrolledCourses.map((course) => (
+          {courses.map((course) => (
             <div className="wd-dashboard-course col" style={{ width: "300px" }} key={course._id}>
               <div className="card rounded-3 overflow-hidden">
                 <Link
