@@ -37,7 +37,6 @@ export default function AssignmentEditor() {
     }
 
     async function handleSubmit() {
-        debugger;
         const assignment = {
             _id,
             title,

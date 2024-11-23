@@ -27,10 +27,10 @@ export default function Dashboard({
 }: DashboardProps) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { enrollments } = useSelector((state: any) => state.accountReducer);
-  const [courses, setCourses] = useState(initialCourses); // State for enrolled courses
-  const [allCourses, setAllCourses] = useState(initialAllCourses); // State for all available courses
-  const [showEnrollments, setShowEnrollments] = useState(false); // State to control enrollment display
-  const [showAllCourses, setShowAllCourses] = useState(false); // State to toggle between all courses and enrolled courses
+  const [courses, setCourses] = useState(initialCourses);
+  const [allCourses, setAllCourses] = useState(initialAllCourses);
+  const [showEnrollments, setShowEnrollments] = useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -39,12 +39,10 @@ export default function Dashboard({
     dispatch(setEnrollments(enrollments));
   };
 
-  // Fetch enrollments on component mount
   useEffect(() => {
     fetchEnrollments();
   }, []);
 
-  // Update courses and allCourses when enrollments change
   useEffect(() => {
     const enrolledCourseIds = enrollments.map((enrollment: any) => enrollment.course);
     setCourses(initialAllCourses.filter((course) => enrolledCourseIds.includes(course._id)));
@@ -75,7 +73,6 @@ export default function Dashboard({
       <h1 id="wd-dashboard-title">Dashboard</h1>
       <hr />
 
-      {/* Container for buttons */}
       <div className="d-flex flex-column">
         <ProtectedButton>
           <h5>New Course</h5>
