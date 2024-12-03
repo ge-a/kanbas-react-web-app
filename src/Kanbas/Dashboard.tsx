@@ -10,6 +10,9 @@ type DashboardProps = {
   courses: any[];
   course: any;
   allCourses: any[];
+  enrolling: boolean;
+  setEnrolling: (enrolling: boolean) => void;
+  updateEnrollment: (courseId: string, enrolled: boolean) => void;
   setCourse: (course: any) => void;
   addNewCourse: () => void;
   deleteCourse: (courseId: any) => void;
@@ -20,6 +23,9 @@ export default function Dashboard({
   courses: initialCourses,
   course,
   allCourses: initialAllCourses,
+  enrolling,
+  setEnrolling,
+  updateEnrollment,
   setCourse,
   addNewCourse,
   deleteCourse,
