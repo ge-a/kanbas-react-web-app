@@ -20,6 +20,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
             setCoursePeople(coursePeople);
         }
     };
+    
     useEffect(() => {
         fetchCoursePeople();
     }, [cid]);
