@@ -8,18 +8,21 @@ import * as client from "../../Account/client";
 export default function PeopleDetails() {
     const { uid } = useParams();
     const [user, setUser] = useState<any>({});
+    const [name, setName] = useState("");
+    const [editing, setEditing] = useState(false);
     const navigate = useNavigate();
+
     const deleteUser = async (uid: string) => {
         await client.deleteUser(uid);
         navigate(-1);
     };
+
     const fetchUser = async () => {
         if (!uid) return;
         const user = await client.findUserById(uid);
         setUser(user);
     };
-    const [name, setName] = useState("");
-    const [editing, setEditing] = useState(false);
+
     const saveUser = async () => {
         const [firstName, lastName] = name.split(" ");
         const updatedUser = { ...user, firstName, lastName };
@@ -58,7 +61,35 @@ export default function PeopleDetails() {
                             if (e.key === "Enter") { saveUser(); }
                         }} />)}
             </div>
-            <b>Roles:</b>           <span className="wd-roles">         {user.role}         </span> <br />
+            <div>
+                <b>Role: </b>
+                {!editing && (
+                    <span className="wd-roles" onClick={() => setEditing(true)}>
+                        {user.role}
+                    </span>)}
+                {user && editing && (
+                    <select className="form-select w-50 wd-edit-role" value={user.role} onChange={(e) => setUser({ ...user, role: e.target.value })}>
+                        <option value="ADMIN">Admin</option>
+                        <option value="STUDENT">Student</option>
+                        <option value="FACULTY">Faculty</option>
+                        <option value="TA">TA</option>
+                    </select>
+                )}
+            </div>
+            <div>
+                <b>Email: </b>
+                {!editing && (
+                    <span className="wd-email" onClick={() => setEditing(true)}>
+                        {user.email}
+                    </span>)}
+                {user && editing && (
+                    <input className="form-control w-50 wd-edit-email"
+                    defaultValue={user.email}
+                    onChange={(e) => setUser({...user, email: e.target.value})}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") { saveUser(); }
+                    }} />)}
+            </div>
             <b>Login ID:</b>        <span className="wd-login-id">      {user.loginId}      </span> <br />
             <b>Section:</b>         <span className="wd-section">       {user.section}      </span> <br />
             <b>Total Activity:</b>  <span className="wd-total-activity">{user.totalActivity}</span>

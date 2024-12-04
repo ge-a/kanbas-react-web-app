@@ -14,8 +14,8 @@ import { useSelector } from "react-redux";
 
 export default function Kanbas() {
   const [courses, setCourses] = useState<any[]>([]);
-  const [allCourses, setAllCourses] = useState<any[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const findCoursesForUser = async () => {
     try {
       const courses = await userClient.findCoursesForUser(currentUser._id);
@@ -58,7 +58,6 @@ export default function Kanbas() {
       console.error(error);
     }
   };
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
   useEffect(() => {
     if (enrolling) {
       fetchCourses();
@@ -87,8 +86,6 @@ export default function Kanbas() {
     })
     );
   };
-
-
   return (
     <Session>
       <div id="wd-kanbas">
@@ -102,7 +99,6 @@ export default function Kanbas() {
                 <Dashboard
                   courses={courses}
                   course={course}
-                  allCourses={allCourses}
                   enrolling={enrolling}
                   setEnrolling={setEnrolling}
                   updateEnrollment={updateEnrollment}
