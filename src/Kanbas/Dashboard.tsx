@@ -31,7 +31,6 @@ export default function Dashboard({
 }: DashboardProps) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { enrollments } = useSelector((state: any) => state.accountReducer);
-  const [showEnrollments, setShowEnrollments] = useState(false);
 
   const dispatch = useDispatch();
 
